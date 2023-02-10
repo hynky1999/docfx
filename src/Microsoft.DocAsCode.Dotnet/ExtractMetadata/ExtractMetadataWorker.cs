@@ -149,8 +149,10 @@ namespace Microsoft.DocAsCode.Dotnet
             var extensionMethods = assemblySymbols.SelectMany(assembly => assembly.FindExtensionMethods()).ToArray();
 
             var configFilterRule = ConfigFilterRule.LoadWithDefaults(_config.FilterConfigFile);
-            var filterVisitor = _config.DisableDefaultFilter ? (IFilterVisitor)new AllMemberFilterVisitor() : new DefaultFilterVisitor();
-            filterVisitor = filterVisitor.WithConfig(configFilterRule).WithCache();
+            var filterVisitor = new CachedFilterVisitor(
+                new FilterVisitor(_options, new ConfigFilterVisitor(
+                    _config.DisableDefaultFilter ? (IFilterVisitor)new AllMemberFilterVisitor() : new DefaultFilterVisitor(),
+                    configFilterRule)));
 
             foreach (var assembly in assemblySymbols)
             {
