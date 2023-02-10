@@ -29,13 +29,11 @@ namespace Microsoft.DocAsCode.Dotnet
 
         #region Constructor
 
-        public SymbolVisitorAdapter(YamlModelGenerator generator, ExtractMetadataOptions options, IMethodSymbol[] extensionMethods)
+        public SymbolVisitorAdapter(YamlModelGenerator generator, ExtractMetadataOptions options, IFilterVisitor filterVisitor, IMethodSymbol[] extensionMethods)
         {
             _generator = generator;
             _preserveRawInlineComments = options.PreserveRawInlineComments;
-            var configFilterRule = ConfigFilterRule.LoadWithDefaults(options.FilterConfigFile);
-            var filterVisitor = options.DisableDefaultFilter ? (IFilterVisitor)new AllMemberFilterVisitor() : new DefaultFilterVisitor();
-            FilterVisitor = filterVisitor.WithConfig(configFilterRule).WithCache();
+            FilterVisitor = filterVisitor;
             _extensionMethods = extensionMethods?.Where(e => FilterVisitor.CanVisitApi(e)).ToArray() ?? Array.Empty<IMethodSymbol>();
             _codeSourceBasePath = options.CodeSourceBasePath;
         }
